@@ -1,25 +1,41 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
-import CustomButton from "../../components/CustomButton"
-import { Link } from "expo-router";
+import CustomButton from "../../components/CustomButton";
+import { Link, router } from "expo-router";
+import { createUser } from "../../lib/appwrite";
 
 const SignUp = () => {
-
   const [form, setForm] = useState({
-    username: '',
+    username: "",
     email: "",
     password: "",
   });
 
-  const submit = () => {
+  const submit = async () => {
+    if (!form.username || !form.email || !form.password) {
+      Alert.alert("Error", "Please fill in all the fields!");
+    }
 
-  }
+    setisSubmitting(true);
 
-  const [isSubmitting, setisSubmitting] = useState(false)
+    try {
+      const result = await createUser(form.email, form.password, form.username);
+      
+      router.replace("/home ");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setisSubmitting(false);
+    }
+
+    createUser();
+  };
+
+  const [isSubmitting, setisSubmitting] = useState(false);
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -56,19 +72,24 @@ const SignUp = () => {
             otherStyles="mt-7"
           />
 
-          <CustomButton 
-          title="Sign Up"
-          handlePress={submit}
-          containerStyles="mt-7"
-          isLoading={isSubmitting}
+          <CustomButton
+            title="Sign Up"
+            handlePress={submit}
+            containerStyles="mt-7"
+            isLoading={isSubmitting}
           />
 
           <View className="justify-center pt-5 flex-row gap-2">
-          <Text className="text-lg text-gray-100 font-pregular">
-            Have an account already?
-          </Text>
+            <Text className="text-lg text-gray-100 font-pregular">
+              Have an account already?
+            </Text>
 
-          <Link href="/sign-in" className=" text-lg text-secondary-100 font-psemibold">Sign In</Link>
+            <Link
+              href="/sign-in"
+              className=" text-lg text-secondary-100 font-psemibold"
+            >
+              Sign In
+            </Link>
           </View>
         </View>
       </ScrollView>
